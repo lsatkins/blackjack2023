@@ -1,0 +1,35 @@
+.container{
+    height: 55%;
+    width: 80%;
+    background-color: rgb(15, 133, 15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: solid;
+}
+body{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+.hand{
+    height: 80px;
+    background-color: rgb(51, 189, 51);
+    display: flex;
+    align-items: center;
+}
+
+.table{
+    width: 80%;
+}
+.buttons{
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+}
+.card{
+    height: 90%;
+    margin-left: 5px;
+}
