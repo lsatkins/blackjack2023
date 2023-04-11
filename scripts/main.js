@@ -313,10 +313,6 @@ let cards = [
     }
 ]
 
-let gameover = false;
-
-// while(gameover === false){ //start of while loop
-
 // Function to shuffle cards
 function shuffle(cards){
     let shuffled = [];
@@ -334,20 +330,31 @@ function shuffle(cards){
 
 let shuffled = shuffle(cards);
 
-//? code to add cards to hand
-
 let dealerHand = document.querySelector('#dealer-hand');
 let playerHand = document.querySelector('#player-hand');
-let playerScore = 0;
-let dealerScore = 0;
 let dScore = document.querySelector('#dealer-points');
 let pScore = document.querySelector('#player-points');
+let dealBtn = document.querySelector('#deal-button');
+let hitMeBtn = document.querySelector('#hit-button');
+let stand = document.querySelector('#stand-button');
+let message = document.querySelector('#messages');
+let box = document.querySelector('.btnBox');
+let playAgainBtn = document.createElement('button');
+playAgainBtn.setAttribute('id', 'play-button');
+playAgainBtn.setAttribute('type', 'button');
+playAgainBtn.innerText = 'Play Again';
+
+let playerScore = 0;
+let dealerScore = 0;
 let dealerArr = [];
 let playerArr = [];
 let dealAceDeduct = false;
 let playAceDeduct = false;
 let dealAceCount = 0;
 let playAceCount = 0;
+let playerWins = 0;
+let dealerWins = 0;
+
 
 let dealPlayer = function(shuffled){
 
@@ -384,8 +391,14 @@ let dealPlayer = function(shuffled){
 
     if(playerScore > 21){
         message.innerText = "You busted! You lose."
+        disableBtns();
+        roundOver();
+        dealerWins += 1;
     } else if(playerScore === 21){
         message.innerText = "You got 21! You win!"
+        disableBtns();
+        roundOver();
+        playerWins += 1;
     }
 
 
@@ -436,8 +449,14 @@ let dealDealer = (shuffled)=>{
 
     if(dealerScore > 21){
         message.innerText = "Dealer busted! You win!"
+        disableBtns();
+        roundOver();
+        playerWins += 1;
     } else if (dealerScore === 21){
         message.innerText = "Dealer got 21. Dealer wins."
+        disableBtns();
+        roundOver();
+        dealerWins += 1;
     }
 
 }
@@ -451,16 +470,15 @@ let firstDeal = function(){
 
 }
 
-let dealBtn = document.querySelector('#deal-button')
+
 dealBtn.addEventListener('click', (e) =>{
 
     firstDeal();
 
-    document.querySelector('#deal-button').disabled = true;
+    dealBtn.disabled = true;
 
 })
 
-let hitMeBtn = document.querySelector('#hit-button');
 
 hitMeBtn.addEventListener('click', (e)=>{
 
@@ -473,12 +491,14 @@ hitMeBtn.addEventListener('click', (e)=>{
     }
 })
 
-let stand = document.querySelector('#stand-button');
 
-let standEL = stand.addEventListener('click', (e)=> {
+stand.addEventListener('click', (e)=> {
 
     if(dealerScore <= 17 && dealerScore > playerScore){
         message.innerText = "You lose."
+        disableBtns();
+        roundOver();
+        dealerWins += 1;
     } else if(dealerScore >= 17 && dealerScore < playerScore){
         dealDealer(shuffled);
     } else if (dealerScore <= 17 && dealerScore <playerScore){
@@ -486,19 +506,62 @@ let standEL = stand.addEventListener('click', (e)=> {
     }
     else if(dealerScore === playerScore){
         message.innerText = "You tied."
+        disableBtns();
+        roundOver();
     } else{
         message.innerText = "You lose."
+        disableBtns();
+        roundOver();
+        dealerWins += 1;
     }
     
 
 })
 
-let message = document.querySelector('#messages')
+
+let disableBtns = function (){
+    hitMeBtn.disabled = true;
+    stand.disabled = true;
+}
+
+function empty(element) {
+    while(element.firstElementChild) {
+       element.firstElementChild.remove();
+    }
+  }
 
 let reset = function(){
 
+    stand.disabled = false;
+    hitMeBtn.disabled = false;
+    dealBtn.disabled = false;
+
+    playerScore = 0;
+    dealerScore = 0;
+    playerArr = [];
+    dealerArr = [];
+
+    empty(playerHand);
+    empty(dealerHand);
+
+    dScore.innerText = 0;
+    pScore.innerText = 0;
+
+
+
+
 }
 
+let roundOver = function(){
+
+    box.append(playAgainBtn);
+
+}
+
+playAgainBtn.addEventListener('click', (e)=>{
+
+    reset();
+})
 
 
 
@@ -508,4 +571,4 @@ let reset = function(){
 
 
 
-// } //end of while loop
+

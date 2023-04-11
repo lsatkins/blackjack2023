@@ -37,3 +37,7 @@ body{
 #messages{
     color: white;
 }
+.btnBox{
+    display: flex;
+    justify-content: center;
+}
