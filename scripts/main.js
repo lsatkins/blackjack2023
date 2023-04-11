@@ -330,6 +330,20 @@ function shuffle(cards){
 
 let shuffled = shuffle(cards);
 
+let playerScore = 0;
+let dealerScore = 0;
+let dealerArr = [];
+let playerArr = [];
+let dealAceDeduct = false;
+let playAceDeduct = false;
+let dealAceCount = 0;
+let playAceCount = 0;
+let playerWins = 0;
+let dealerWins = 0;
+let usedCards = [];
+let money = 500;
+let betMoney = 0;
+
 let dealerHand = document.querySelector('#dealer-hand');
 let playerHand = document.querySelector('#player-hand');
 let dScore = document.querySelector('#dealer-points');
@@ -343,17 +357,27 @@ let playAgainBtn = document.createElement('button');
 playAgainBtn.setAttribute('id', 'play-button');
 playAgainBtn.setAttribute('type', 'button');
 playAgainBtn.innerText = 'Play Again';
+let playWinCount = document.createElement('div');
+playWinCount.setAttribute('class', 'playWins');
+let dealWinCount = document.createElement('div');
+dealWinCount.setAttribute('class', 'dealWins');
+let winsBox = document.querySelector('.winsBox');
+winsBox.append(playWinCount);
+winsBox.append(dealWinCount);
+playWinCount.innerText = 'Player Wins: ' +playerWins;
+dealWinCount.innerText = 'Dealer Wins: ' +dealerWins;
+let betBtn = document.createElement('button');
+betBtn.setAttribute('type', 'button');
+betBtn.setAttribute('class', 'bet')
+betBtn.innerText = 'Bet';
+let betBox = document.querySelector('.betBox');
+betBox.append(betBtn);
+let moneyText = document.querySelector('.money');
+moneyText.innerText += money;
 
-let playerScore = 0;
-let dealerScore = 0;
-let dealerArr = [];
-let playerArr = [];
-let dealAceDeduct = false;
-let playAceDeduct = false;
-let dealAceCount = 0;
-let playAceCount = 0;
-let playerWins = 0;
-let dealerWins = 0;
+
+
+
 
 
 let dealPlayer = function(shuffled){
@@ -369,21 +393,15 @@ let dealPlayer = function(shuffled){
     playerArr.push(cardObj);
     shuffled.pop();
     
-    if(cardObj.aceOrNot === true){//incase they already got an ace and counted it as 1
-        playAceDeduct = false;
-    }
-
-    if(hasAce(playerArr) && playAceDeduct === false){
-        if(playerScore + cardObj.value > 21){
-            playerScore -= 10;
-            playAceDeduct = true;
-            playAceCount += 1;
-        } else{
-            playAceCount += 1;
+    if(cardObj.aceOrNot === true){
+        if(confirm(`
+        Choose "OK" for Ace to count as 11.
+        Choose "Cancel" for Ace to count as 1.
+        `)){
+            cardObj.value = 11;
+        } else {
+            cardObj.value = 1;
         }
-    }
-    if(playAceCount === 2 && playerScore + cardObj.value > 21){
-        playerScore -= 10;
     }
     
     playerScore += cardObj.value;
@@ -398,9 +416,9 @@ let dealPlayer = function(shuffled){
         message.innerText = "You got 21! You win!"
         disableBtns();
         roundOver();
-        playerWins += 1;
+        playWins();
     }
-
+    // console.log(betMoney);
 
 }
 
@@ -429,21 +447,13 @@ let dealDealer = (shuffled)=>{
     shuffled.pop();
 
     if(cardObj.aceOrNot === true){
-        dealAceDeduct = false;
-    }
-
-    if(hasAce(dealerArr) && dealAceDeduct === false){
-        if(dealerScore + cardObj.value > 21){
-            dealerScore -= 10;
-            dealAceDeduct = true;
-            dealAceCount += 1;
-        } else{
-            dealAceCount += 1;
+        if(cardObj.value + dealerScore <= 21){
+            cardObj.value = 11;
+        } else {
+            cardObj.value = 1;
         }
     }
-    if(dealAceCount >= 2 && dealerScore + cardObj.value > 21){
-        dealerScore -= 10;
-    }
+    
     dealerScore += cardObj.value;
     dScore.innerText = dealerScore;
 
@@ -451,7 +461,7 @@ let dealDealer = (shuffled)=>{
         message.innerText = "Dealer busted! You win!"
         disableBtns();
         roundOver();
-        playerWins += 1;
+        playWins();
     } else if (dealerScore === 21){
         message.innerText = "Dealer got 21. Dealer wins."
         disableBtns();
@@ -464,9 +474,13 @@ let dealDealer = (shuffled)=>{
 let firstDeal = function(){
 
     dealPlayer(shuffled);
+    
     dealDealer(shuffled);
+
     dealPlayer(shuffled);
+
     dealDealer(shuffled);
+
 
 }
 
@@ -508,6 +522,7 @@ stand.addEventListener('click', (e)=> {
         message.innerText = "You tied."
         disableBtns();
         roundOver();
+        money += betMoney;
     } else{
         message.innerText = "You lose."
         disableBtns();
@@ -538,6 +553,10 @@ let reset = function(){
 
     playerScore = 0;
     dealerScore = 0;
+
+    shuffled = shuffled.concat(dealerArr);
+    shuffled = shuffled.concat(playerArr);
+    
     playerArr = [];
     dealerArr = [];
 
@@ -547,8 +566,10 @@ let reset = function(){
     dScore.innerText = 0;
     pScore.innerText = 0;
 
+    message.innerText = "";
 
-
+    shuffled = shuffle(shuffled);
+    betMoney = 0;
 
 }
 
@@ -561,7 +582,32 @@ let roundOver = function(){
 playAgainBtn.addEventListener('click', (e)=>{
 
     reset();
+
+    playWinCount.innerText = 'Player Wins: ' +playerWins;
+    dealWinCount.innerText = 'Dealer Wins: ' +dealerWins;
+
 })
+
+betBtn.addEventListener('click', (e)=>{
+
+    let howMuch = Number(prompt("How much money do you want to bet?", "Number of dollars"));
+    if(typeof howMuch !== 'number'){
+        alert('That was not a valid number');
+    } else if (howMuch > money){
+        alert('You dont have enough money for that!')
+    } else {
+        betMoney += howMuch;
+        money -= betMoney;
+        moneyText.innerText = '$' + money;
+    }
+    console.log(howMuch);
+})
+
+let playWins = function(){
+    money += (betMoney * 2);
+    playerWins +=1
+    moneyText.innerText = 'S' + money;
+}
 
 
 
